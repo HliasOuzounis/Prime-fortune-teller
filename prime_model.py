@@ -1,6 +1,6 @@
 import torch
 
-device = torch.device("cuda:0" if not torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PrimeModel(torch.nn.Module):
     def __init__(self, num_inputs, num_outputs, hidden_size=32):
@@ -13,7 +13,7 @@ class PrimeModel(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.Linear(hidden_size, num_outputs),
             torch.nn.ReLU(),
-            torch.nn.Softmax(dim=1),
+            torch.nn.Softmax(),
         )
         
         self.loss = None
@@ -26,7 +26,7 @@ class PrimeModel(torch.nn.Module):
     
     def get_loss(self, x, y):
         predictions = self.forward(x)
-        self.loss = torch.nn.functional.cross_entropy(predictions, y)
+        self.loss = torch.nn.functional.cross_entropy(predictions, y, weight=torch.tensor([1, 5]).to(device))
         return self.loss
     
     def marry(self, other, mutation_rate=0.05):
